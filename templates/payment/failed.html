@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Failed - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center">
+        <!-- Failed Icon -->
+        <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-red-400 mb-4">Payment Failed</h1>
+        <p class="text-xl text-gray-300 mb-8">We're sorry, but your payment could not be processed.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Order Details -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Order Details</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Number:</span>
+                    <span class="text-white font-semibold">{{ order.order_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Date:</span>
+                    <span class="text-white">{{ order.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Payment Status:</span>
+                    <span class="text-red-400 font-semibold">Failed</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold">
+                    <span class="gold-accent">Total Amount:</span>
+                    <span class="gold-accent">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Information -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">What Can You Do?</h2>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="text-white font-semibold mb-2">Try Again</h3>
+                    <p class="text-gray-400 text-sm mb-3">You can retry the payment with a different method.</p>
+                    <a href="{% url 'payment_selection' order.id %}" class="gold-gradient text-black px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity text-sm">
+                        Retry Payment
+                    </a>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="text-white font-semibold mb-2">Contact Support</h3>
+                    <p class="text-gray-400 text-sm mb-3">If you continue to face issues, contact our support team.</p>
+                    <div class="text-gray-400 text-sm">
+                        <p>Phone: +91 6358286019</p>
+                        <p>Email: info@ddsalon.com</p>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="text-white font-semibold mb-2">Common Issues</h3>
+                    <ul class="text-gray-400 text-sm space-y-1">
+                        <li>• Check your internet connection</li>
+                        <li>• Verify your payment details</li>
+                        <li>• Ensure sufficient balance</li>
+                        <li>• Try a different payment method</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="text-center mt-8 space-x-4">
+        <a href="{% url 'payment_selection' order.id %}" class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Try Payment Again
+        </a>
+        <a href="{% url 'orders_list' %}" class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            View Orders
+        </a>
+        <a href="{% url 'home' %}" class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}

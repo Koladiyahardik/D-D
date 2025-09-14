@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Payments - Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold gold-accent mb-2">Manage Payments</h1>
+                <p class="text-gray-400">View and manage all payment transactions</p>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Payment Method</label>
+                <select name="method" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                    <option value="">All Methods</option>
+                    <option value="COD" {% if method_filter == 'COD' %}selected{% endif %}>Cash on Delivery</option>
+                    <option value="UPI" {% if method_filter == 'UPI' %}selected{% endif %}>UPI</option>
+                    <option value="CARD" {% if method_filter == 'CARD' %}selected{% endif %}>Card</option>
+                    <option value="NETBANKING" {% if method_filter == 'NETBANKING' %}selected{% endif %}>Net Banking</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Payment Status</label>
+                <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                    <option value="">All Status</option>
+                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Success" {% if status_filter == 'Success' %}selected{% endif %}>Success</option>
+                    <option value="Failed" {% if status_filter == 'Failed' %}selected{% endif %}>Failed</option>
+                    <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="Refunded" {% if status_filter == 'Refunded' %}selected{% endif %}>Refunded</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Refund Status</label>
+                <select name="refund" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                    <option value="">All Refunds</option>
+                    <option value="Not_Required" {% if refund_filter == 'Not_Required' %}selected{% endif %}>Not Required</option>
+                    <option value="Pending" {% if refund_filter == 'Pending' %}selected{% endif %}>Refund Pending</option>
+                    <option value="Processing" {% if refund_filter == 'Processing' %}selected{% endif %}>Refund Processing</option>
+                    <option value="Completed" {% if refund_filter == 'Completed' %}selected{% endif %}>Refund Completed</option>
+                    <option value="Failed" {% if refund_filter == 'Failed' %}selected{% endif %}>Refund Failed</option>
+                </select>
+            </div>
+            <div class="flex items-end space-x-2">
+                <button type="submit" class="gold-gradient text-black px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    Filter
+                </button>
+                <a href="{% url 'admin_payments' %}" class="bg-gray-700 text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="dark-card rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Order</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Customer</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Method</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Status</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Amount</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Refund</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Date</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-800">
+                        <td class="py-4 px-6">
+                            <p class="text-white font-semibold">{{ payment.order.order_number }}</p>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="text-white font-medium">{{ payment.order.user.username }}</p>
+                                <p class="text-gray-400 text-sm">{{ payment.order.user.email }}</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                {% if payment.payment_method == 'COD' %}bg-blue-600 text-white
+                                {% elif payment.payment_method == 'UPI' %}bg-green-600 text-white
+                                {% elif payment.payment_method == 'CARD' %}bg-purple-600 text-white
+                                {% elif payment.payment_method == 'NETBANKING' %}bg-indigo-600 text-white
+                                {% else %}bg-gray-600 text-white{% endif %}">
+                                {{ payment.get_payment_method_display }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                {% if payment.payment_status == 'Success' %}bg-green-600 text-white
+                                {% elif payment.payment_status == 'Pending' %}bg-yellow-600 text-white
+                                {% elif payment.payment_status == 'Failed' %}bg-red-600 text-white
+                                {% elif payment.payment_status == 'Cancelled' %}bg-gray-600 text-white
+                                {% elif payment.payment_status == 'Refunded' %}bg-blue-600 text-white
+                                {% else %}bg-gray-600 text-white{% endif %}">
+                                {{ payment.get_payment_status_display }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <p class="text-white font-semibold">₹{{ payment.amount }}</p>
+                        </td>
+                        <td class="py-4 px-6">
+                            {% if payment.refund_status != 'Not_Required' %}
+                                <span class="px-3 py-1 rounded-full text-sm font-medium
+                                    {% if payment.refund_status == 'Completed' %}bg-green-600 text-white
+                                    {% elif payment.refund_status == 'Pending' %}bg-yellow-600 text-white
+                                    {% elif payment.refund_status == 'Processing' %}bg-blue-600 text-white
+                                    {% elif payment.refund_status == 'Failed' %}bg-red-600 text-white
+                                    {% else %}bg-gray-600 text-white{% endif %}">
+                                    {{ payment.get_refund_status_display }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-400 text-sm">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            <p class="text-white">{{ payment.created_at|date:"M d, Y" }}</p>
+                            <p class="text-gray-400 text-sm">{{ payment.created_at|time:"H:i" }}</p>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'order_detail' payment.order.id %}" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    View Order
+                                </a>
+                                {% if payment.payment_status == 'Pending' %}
+                                <button onclick="updatePaymentStatus({{ payment.id }})" class="bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700 transition-colors">
+                                    Update
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-8 px-6 text-center text-gray-400">
+                            No payments found matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Status Update Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="dark-card rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h3 class="text-xl font-semibold gold-accent mb-4">Update Payment Status</h3>
+                <form id="paymentForm" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium gold-accent mb-2">New Status</label>
+                        <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <option value="Pending">Pending</option>
+                            <option value="Success">Success</option>
+                            <option value="Failed">Failed</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Refunded">Refunded</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="gold-gradient text-black px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                            Update
+                        </button>
+                        <button type="button" onclick="closePaymentModal()" class="bg-gray-700 text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updatePaymentStatus(paymentId) {
+    const form = document.getElementById('paymentForm');
+    form.action = `/admin/payments/${paymentId}/update-status/`;
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePaymentModal();
+    }
+});
+</script>
+{% endblock %}

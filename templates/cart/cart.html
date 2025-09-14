@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold gold-accent mb-8">Shopping Cart</h1>
+
+    {% if cart_items %}
+    <div class="dark-card rounded-lg shadow-lg p-6">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-600">
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Product</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Price</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Quantity</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Total</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr class="border-b border-gray-700">
+                        <td class="py-4 px-2">
+                            <div class="flex items-center space-x-4">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded">
+                                {% else %}
+                                    <div class="w-16 h-16 bg-gray-700 rounded flex items-center justify-center">
+                                        <span class="text-gray-400 text-xl">🛍️</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h3 class="font-semibold text-white">{{ item.product.name }}</h3>
+                                    <p class="text-gray-400 text-sm">{{ item.product.category.name }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-2">
+                            <span class="text-white font-semibold">₹{{ item.product.final_price }}</span>
+                            {% if item.product.discount_price and item.product.price != item.product.discount_price %}
+                                <span class="text-gray-500 line-through text-sm ml-2">₹{{ item.product.price }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-2">
+                            <form method="POST" action="{% url 'update_cart' %}" class="flex items-center space-x-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" 
+                                        class="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600">-</button>
+                                <span class="text-white px-3">{{ item.quantity }}</span>
+                                <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" 
+                                        class="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600">+</button>
+                            </form>
+                        </td>
+                        <td class="py-4 px-2">
+                            <span class="text-white font-semibold">₹{{ item.total_price }}</span>
+                        </td>
+                        <td class="py-4 px-2">
+                            <a href="{% url 'remove_from_cart' item.id %}" 
+                               class="text-red-400 hover:text-red-300 text-sm">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-8 flex justify-between items-center">
+            <div class="text-lg">
+                <span class="text-gray-400">Total Items:</span>
+                <span class="text-white font-semibold ml-2">{{ cart.total_items }}</span>
+            </div>
+            <div class="text-2xl">
+                <span class="text-gray-400">Total Amount:</span>
+                <span class="gold-accent font-bold ml-2">₹{{ cart.total_amount }}</span>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex space-x-4">
+            <a href="{% url 'products_list' %}" 
+               class="bg-gray-700 text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                Continue Shopping
+            </a>
+            <a href="{% url 'checkout' %}" 
+               class="gold-gradient text-black px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                Proceed to Checkout
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+        <div class="text-6xl mb-4">🛒</div>
+        <h2 class="text-2xl font-semibold text-white mb-4">Your cart is empty</h2>
+        <p class="text-gray-400 mb-8">Add some products to get started</p>
+        <a href="{% url 'products_list' %}" 
+           class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Shop Now
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold gold-accent mb-8">My Profile</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Profile Information -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="dark-card rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold gold-accent mb-6">Personal Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium gold-accent mb-2">First Name</label>
+                        <div class="bg-gray-700 text-white px-4 py-3 rounded-lg">
+                            {{ user.first_name|default:"Not provided" }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium gold-accent mb-2">Last Name</label>
+                        <div class="bg-gray-700 text-white px-4 py-3 rounded-lg">
+                            {{ user.last_name|default:"Not provided" }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium gold-accent mb-2">Username</label>
+                        <div class="bg-gray-700 text-white px-4 py-3 rounded-lg">
+                            {{ user.username }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium gold-accent mb-2">Email</label>
+                        <div class="bg-gray-700 text-white px-4 py-3 rounded-lg">
+                            {{ user.email }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium gold-accent mb-2">Member Since</label>
+                        <div class="bg-gray-700 text-white px-4 py-3 rounded-lg">
+                            {{ user.date_joined|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium gold-accent mb-2">Last Login</label>
+                        <div class="bg-gray-700 text-white px-4 py-3 rounded-lg">
+                            {{ user.last_login|date:"M d, Y g:i A"|default:"Never" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="dark-card rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold gold-accent mb-6">Account Statistics</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 gold-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-black text-2xl font-bold">{{ user.orders.count }}</span>
+                        </div>
+                        <h3 class="text-white font-semibold">Total Orders</h3>
+                        <p class="text-gray-400 text-sm">Orders placed</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-16 h-16 gold-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-black text-2xl font-bold">₹{{ total_spent }}</span>
+                        </div>
+                        <h3 class="text-white font-semibold">Total Spent</h3>
+                        <p class="text-gray-400 text-sm">Amount spent</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-16 h-16 gold-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-black text-2xl font-bold">{{ cart_items_count }}</span>
+                        </div>
+                        <h3 class="text-white font-semibold">Cart Items</h3>
+                        <p class="text-gray-400 text-sm">Items in cart</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Profile Avatar -->
+            <div class="dark-card rounded-lg shadow-lg p-6 text-center">
+                <div class="w-24 h-24 gold-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-black text-3xl font-bold">{{ user.first_name.0|default:user.username.0|upper }}</span>
+                </div>
+                <h3 class="text-white font-semibold text-lg">{{ user.first_name|default:user.username|title }}</h3>
+                <p class="text-gray-400 text-sm">{{ user.email }}</p>
+                <div class="mt-4">
+                    <span class="px-3 py-1 gold-gradient text-black rounded-full text-sm font-semibold">
+                        Premium Member
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="dark-card rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold gold-accent mb-4">Quick Actions</h3>
+                
+                <div class="space-y-3">
+                    <a href="{% url 'orders_list' %}" class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                        <svg class="w-5 h-5 gold-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span class="text-white">My Orders</span>
+                    </a>
+                    
+                    <a href="{% url 'cart_view' %}" class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                        <svg class="w-5 h-5 gold-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                        </svg>
+                        <span class="text-white">Shopping Cart</span>
+                    </a>
+                    
+                    <a href="{% url 'products_list' %}" class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                        <svg class="w-5 h-5 gold-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        <span class="text-white">Continue Shopping</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

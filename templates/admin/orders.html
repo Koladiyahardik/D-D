@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Orders - Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold gold-accent mb-2">Manage Orders</h1>
+                <p class="text-gray-400">View and manage all customer orders</p>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Status</label>
+                <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                    <option value="">All Status</option>
+                    <option value="Payment_Pending" {% if status_filter == 'Payment_Pending' %}selected{% endif %}>Payment Pending</option>
+                    <option value="Paid" {% if status_filter == 'Paid' %}selected{% endif %}>Paid</option>
+                    <option value="Confirmed" {% if status_filter == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="Processing" {% if status_filter == 'Processing' %}selected{% endif %}>Processing</option>
+                    <option value="Shipped" {% if status_filter == 'Shipped' %}selected{% endif %}>Shipped</option>
+                    <option value="Delivered" {% if status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Search</label>
+                <input type="text" name="search" value="{{ search }}" placeholder="Order number, customer name..." 
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="gold-gradient text-black px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    Filter
+                </button>
+            </div>
+            <div class="flex items-end">
+                <a href="{% url 'admin_orders' %}" class="bg-gray-700 text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="dark-card rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Order</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Customer</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Status</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Amount</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Date</th>
+                        <th class="text-left py-4 px-6 gold-accent font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-800">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="text-white font-semibold">{{ order.order_number }}</p>
+                                <p class="text-gray-400 text-sm">{{ order.items.count }} item(s)</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="text-white font-medium">{{ order.user.username }}</p>
+                                <p class="text-gray-400 text-sm">{{ order.user.email }}</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                {% if order.status == 'Delivered' %}bg-green-600 text-white
+                                {% elif order.status == 'Shipped' %}bg-blue-600 text-white
+                                {% elif order.status == 'Processing' %}bg-yellow-600 text-white
+                                {% elif order.status == 'Confirmed' %}bg-purple-600 text-white
+                                {% elif order.status == 'Paid' %}bg-indigo-600 text-white
+                                {% elif order.status == 'Payment_Pending' %}bg-orange-600 text-white
+                                {% elif order.status == 'Cancelled' %}bg-red-600 text-white
+                                {% else %}bg-gray-600 text-white{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <p class="text-white font-semibold">₹{{ order.total_amount }}</p>
+                        </td>
+                        <td class="py-4 px-6">
+                            <p class="text-white">{{ order.created_at|date:"M d, Y" }}</p>
+                            <p class="text-gray-400 text-sm">{{ order.created_at|time:"H:i" }}</p>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'order_detail' order.id %}" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    View
+                                </a>
+                                <button onclick="updateStatus({{ order.id }})" class="bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700 transition-colors">
+                                    Update
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-8 px-6 text-center text-gray-400">
+                            No orders found matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="dark-card rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-semibold gold-accent mb-4">Update Order Status</h3>
+            <form id="statusForm" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="block text-sm font-medium gold-accent mb-2">New Status</label>
+                    <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                        <option value="Payment_Pending">Payment Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="gold-gradient text-black px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        Update
+                    </button>
+                    <button type="button" onclick="closeModal()" class="bg-gray-700 text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateStatus(orderId) {
+    const form = document.getElementById('statusForm');
+    form.action = `/admin/orders/${orderId}/update-status/`;
+    document.getElementById('statusModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('statusModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('statusModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}

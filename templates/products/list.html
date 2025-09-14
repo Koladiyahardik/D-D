@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Products - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold gold-accent mb-8">Products</h1>
+
+    <!-- Filters -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Search</label>
+                <input type="text" name="search" value="{{ search }}" placeholder="Search products..." class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white placeholder-gray-400">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Category</label>
+                <select name="category" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium gold-accent mb-2">Sort By</label>
+                <select name="sort" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white">
+                    <option value="">Default</option>
+                    <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name A-Z</option>
+                    <option value="price_low" {% if sort_by == "price_low" %}selected{% endif %}>Price Low to High</option>
+                    <option value="price_high" {% if sort_by == "price_high" %}selected{% endif %}>Price High to Low</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="gold-gradient text-black px-6 py-2 rounded-lg hover:opacity-90 transition-opacity w-full font-semibold">
+                    Filter
+                </button>
+            </div>
+        </form>
+        
+        {% if search or selected_category or sort_by %}
+        <div class="mt-4">
+            <a href="{% url 'products_list' %}" class="gold-accent hover:text-yellow-300 text-sm">Clear all filters</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="mb-4">
+        <p class="text-gray-400">Showing {{ products.count }} product{{ products.count|pluralize }}</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for product in products %}
+        <div class="dark-card rounded-lg shadow-lg overflow-hidden card-hover">
+            <div class="relative">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                {% else %}
+                    <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                        <span class="text-gray-400 text-4xl">🛍️</span>
+                    </div>
+                {% endif %}
+                
+                {% if product.discount_percentage > 0 %}
+                    <div class="absolute top-2 right-2 gold-gradient text-black px-2 py-1 rounded text-sm font-bold">
+                        -{{ product.discount_percentage }}%
+                    </div>
+                {% endif %}
+                
+                <div class="absolute top-2 left-2">
+                    <span class="gold-gradient text-black px-2 py-1 rounded text-xs font-medium">
+                        {{ product.category.name }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <h3 class="font-semibold text-white mb-2">{{ product.name }}</h3>
+                <p class="text-gray-400 text-sm mb-3 line-clamp-2">{{ product.description|truncatewords:15 }}</p>
+                
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xl font-bold gold-accent">₹{{ product.final_price }}</span>
+                        {% if product.discount_price and product.price != product.discount_price %}
+                            <span class="text-sm text-gray-500 line-through">₹{{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-sm text-gray-400">
+                        {% if product.stock > 0 %}
+                            {{ product.stock }} in stock
+                        {% else %}
+                            Out of stock
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <a href="{% url 'product_detail' product.id %}" class="flex-1 bg-gray-700 text-gray-300 py-2 px-4 rounded text-center hover:bg-gray-600 transition-colors">
+                        View Details
+                    </a>
+                    {% if user.is_authenticated %}
+                        {% if product.stock > 0 %}
+                            <a href="{% url 'add_to_cart' product.id %}" class="flex-1 gold-gradient text-black py-2 px-4 rounded text-center hover:opacity-90 transition-opacity font-semibold">
+                                Add to Cart
+                            </a>
+                        {% else %}
+                            <button disabled class="flex-1 bg-gray-600 text-gray-400 py-2 px-4 rounded text-center cursor-not-allowed">
+                                Out of Stock
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="flex-1 gold-gradient text-black py-2 px-4 rounded text-center hover:opacity-90 transition-opacity font-semibold">
+                            Login to Buy
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-6xl mb-4">🔍</div>
+        <h3 class="text-xl font-semibold text-white mb-2">No products found</h3>
+        <p class="text-gray-400 mb-4">Try adjusting your search or filter criteria</p>
+        <a href="{% url 'products_list' %}" class="gold-gradient text-black px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-semibold">
+            Clear All Filters
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

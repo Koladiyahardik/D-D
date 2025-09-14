@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Details - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="mb-6">
+        {% if user.is_staff %}
+        <a href="{% url 'admin_orders' %}" class="gold-accent hover:text-yellow-300 text-sm">
+            ← Back to Admin Orders
+        </a>
+        {% else %}
+        <a href="{% url 'orders_list' %}" class="gold-accent hover:text-yellow-300 text-sm">
+            ← Back to Orders
+        </a>
+        {% endif %}
+    </div>
+
+    <h1 class="text-3xl font-bold gold-accent mb-8">Order Details</h1>
+    
+    {% if user.is_staff and order.user != user %}
+    <div class="mb-6 p-4 bg-blue-900 bg-opacity-30 border border-blue-600 rounded-lg">
+        <h3 class="text-blue-400 font-semibold mb-2">👨‍💼 Admin View</h3>
+        <p class="text-blue-200 text-sm">You are viewing an order placed by <strong>{{ order.user.username }}</strong> ({{ order.user.email }})</p>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Order Information -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Order Information</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Number:</span>
+                    <span class="text-white font-semibold">#{{ order.order_number }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Date:</span>
+                    <span class="text-white">{{ order.created_at|date:"M d, Y" }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Status:</span>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                        {% if order.status == 'Delivered' %}bg-green-600 text-white
+                        {% elif order.status == 'Shipped' %}bg-blue-600 text-white
+                        {% elif order.status == 'Processing' %}bg-yellow-600 text-white
+                        {% elif order.status == 'Confirmed' %}bg-purple-600 text-white
+                        {% elif order.status == 'Cancelled' %}bg-red-600 text-white
+                        {% else %}bg-gray-600 text-white{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+                
+                {% if order.status == 'Cancelled' and order.cancelled_at %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Cancelled On:</span>
+                    <span class="text-white">{{ order.cancelled_at|date:"M d, Y H:i" }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Total Amount:</span>
+                    <span class="gold-accent font-bold text-xl">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shipping Information -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Shipping Information</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <span class="text-gray-400">Name:</span>
+                    <p class="text-white">{{ order.shipping_name }}</p>
+                </div>
+                
+                <div>
+                    <span class="text-gray-400">Phone:</span>
+                    <p class="text-white">{{ order.shipping_phone }}</p>
+                </div>
+                
+                <div>
+                    <span class="text-gray-400">Address:</span>
+                    <p class="text-white">{{ order.shipping_address }}</p>
+                </div>
+                
+                <div>
+                    <span class="text-gray-400">City, State - Pincode:</span>
+                    <p class="text-white">{{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Items -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-xl font-semibold gold-accent mb-6">Order Items</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-600">
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Product</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Price</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Quantity</th>
+                        <th class="text-left py-4 px-2 gold-accent font-semibold">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr class="border-b border-gray-700">
+                        <td class="py-4 px-2">
+                            <div class="flex items-center space-x-4">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded">
+                                {% else %}
+                                    <div class="w-16 h-16 bg-gray-700 rounded flex items-center justify-center">
+                                        <span class="text-gray-400 text-xl">🛍️</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h3 class="font-semibold text-white">{{ item.product.name }}</h3>
+                                    <p class="text-gray-400 text-sm">{{ item.product.category.name }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-2">
+                            <span class="text-white font-semibold">₹{{ item.price }}</span>
+                        </td>
+                        <td class="py-4 px-2">
+                            <span class="text-white">{{ item.quantity }}</span>
+                        </td>
+                        <td class="py-4 px-2">
+                            <span class="text-white font-semibold">₹{{ item.total_price }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-6 pt-6 border-t border-gray-700">
+            <div class="flex justify-between items-center text-xl font-bold">
+                <span class="gold-accent">Order Total:</span>
+                <span class="gold-accent">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="mt-8 text-center space-x-4">
+        {% if order.can_be_cancelled %}
+        <a href="{% url 'cancel_order' order.id %}" 
+           class="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+            Cancel Order
+        </a>
+        {% endif %}
+        
+        {% if order.status == 'Cancelled' and order.payment.payment_status == 'Success' and order.payment.payment_method != 'COD' %}
+        <a href="{% url 'refund_status' order.id %}" 
+           class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Track Refund
+        </a>
+        {% endif %}
+        
+        <a href="{% url 'products_list' %}" 
+           class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            Continue Shopping
+        </a>
+    </div>
+    
+    <!-- Cancellation Notice -->
+    {% if order.can_be_cancelled %}
+    <div class="mt-6 p-4 bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg">
+        <h3 class="text-yellow-400 font-semibold mb-2">⚠️ Cancellation Policy</h3>
+        <ul class="text-yellow-200 text-sm space-y-1">
+            <li>• You can cancel this order within 24 hours of placement</li>
+            <li>• Cancellation deadline: {{ order.get_cancellation_deadline|date:"M d, Y H:i" }}</li>
+            <li>• If payment was made, refund will be processed within 4 business days</li>
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Refund Information for Cancelled Orders -->
+    {% if order.status == 'Cancelled' and order.payment.payment_status == 'Success' %}
+        {% if order.payment.payment_method == 'COD' %}
+        <div class="mt-6 p-4 bg-blue-900 bg-opacity-30 border border-blue-600 rounded-lg">
+            <h3 class="text-blue-400 font-semibold mb-2">💰 Cash on Delivery</h3>
+            <div class="text-blue-200 text-sm space-y-1">
+                <p>• No refund required - payment was not made in advance</p>
+                <p>• Order cancelled successfully</p>
+                <p>• You can place a new order anytime</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="mt-6 p-4 bg-blue-900 bg-opacity-30 border border-blue-600 rounded-lg">
+            <h3 class="text-blue-400 font-semibold mb-2">💰 Refund Information</h3>
+            <div class="text-blue-200 text-sm space-y-1">
+                <p>• Refund Amount: ₹{{ order.payment.refund_amount }}</p>
+                <p>• Refund Status: {{ order.payment.get_refund_status_display }}</p>
+                {% if order.payment.refund_expected_date %}
+                <p>• Expected Refund: {{ order.payment.refund_expected_date|date:"M d, Y" }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

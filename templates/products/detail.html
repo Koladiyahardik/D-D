@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{% url 'products_list' %}" class="gold-accent hover:text-yellow-300 text-sm">
+            ← Back to Products
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Product Image -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-96 object-cover rounded-lg">
+            {% else %}
+                <div class="w-full h-96 bg-gray-700 rounded-lg flex items-center justify-center">
+                    <span class="text-gray-400 text-6xl">🛍️</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Product Information -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="mb-4">
+                <span class="gold-gradient text-black px-3 py-1 rounded-full text-sm font-medium">
+                    {{ product.category.name }}
+                </span>
+                {% if product.discount_percentage > 0 %}
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold ml-2">
+                        -{{ product.discount_percentage }}% OFF
+                    </span>
+                {% endif %}
+            </div>
+            
+            <h1 class="text-3xl font-bold text-white mb-4">{{ product.name }}</h1>
+            
+            <div class="flex items-center space-x-4 mb-6">
+                <span class="text-3xl font-bold gold-accent">₹{{ product.final_price }}</span>
+                {% if product.discount_price and product.price != product.discount_price %}
+                    <span class="text-xl text-gray-500 line-through">₹{{ product.price }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold gold-accent mb-3">Description</h3>
+                <p class="text-gray-300 leading-relaxed">{{ product.description }}</p>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold gold-accent mb-3">Availability</h3>
+                <div class="flex items-center space-x-2">
+                    {% if product.stock > 0 %}
+                        <span class="text-green-400 font-semibold">✓ In Stock</span>
+                        <span class="text-gray-400">({{ product.stock }} available)</span>
+                    {% else %}
+                        <span class="text-red-400 font-semibold">✗ Out of Stock</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                {% if user.is_authenticated %}
+                    {% if product.stock > 0 %}
+                        <a href="{% url 'add_to_cart' product.id %}" 
+                           class="flex-1 gold-gradient text-black py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center">
+                            Add to Cart
+                        </a>
+                    {% else %}
+                        <button disabled class="flex-1 bg-gray-600 text-gray-400 py-3 px-6 rounded-lg cursor-not-allowed">
+                            Out of Stock
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" 
+                       class="flex-1 gold-gradient text-black py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center">
+                        Login to Buy
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="mt-16">
+        <h2 class="text-2xl font-bold gold-accent mb-8">Related Products</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for related_product in related_products %}
+            <div class="dark-card rounded-lg shadow-lg overflow-hidden card-hover">
+                <div class="relative">
+                    {% if related_product.image %}
+                        <img src="{{ related_product.image.url }}" alt="{{ related_product.name }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                            <span class="text-gray-400 text-4xl">🛍️</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if related_product.discount_percentage > 0 %}
+                        <div class="absolute top-2 right-2 gold-gradient text-black px-2 py-1 rounded text-sm font-bold">
+                            -{{ related_product.discount_percentage }}%
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-4">
+                    <h3 class="font-semibold text-white mb-2">{{ related_product.name }}</h3>
+                    <p class="text-gray-400 text-sm mb-3">{{ related_product.description|truncatewords:10 }}</p>
+                    
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg font-bold gold-accent">₹{{ related_product.final_price }}</span>
+                            {% if related_product.discount_price and related_product.price != related_product.discount_price %}
+                                <span class="text-sm text-gray-500 line-through">₹{{ related_product.price }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'product_detail' related_product.id %}" 
+                       class="block w-full gold-gradient text-black py-2 px-4 rounded text-center hover:opacity-90 transition-opacity font-semibold">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

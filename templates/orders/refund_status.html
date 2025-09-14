@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Refund Status - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold gold-accent mb-8">Refund Status</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Refund Details -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Refund Information</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Number:</span>
+                    <span class="text-white font-semibold">{{ order.order_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Original Payment:</span>
+                    <span class="text-white">₹{{ order.payment.amount }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Refund Amount:</span>
+                    <span class="text-white font-semibold">₹{{ order.payment.refund_amount }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Payment Method:</span>
+                    <span class="text-white">{{ order.payment.get_payment_method_display }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Refund Status:</span>
+                    <span class="{% if order.payment.refund_status == 'Completed' %}text-green-400{% elif order.payment.refund_status == 'Failed' %}text-red-400{% else %}text-yellow-400{% endif %} font-semibold">
+                        {{ order.payment.get_refund_status_display }}
+                    </span>
+                </div>
+                {% if order.payment.refund_transaction_id %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Refund Transaction ID:</span>
+                    <span class="text-white font-mono text-sm">{{ order.payment.refund_transaction_id }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Timeline -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Refund Timeline</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Refund Initiated</h3>
+                        <p class="text-gray-400 text-sm">{{ order.payment.refund_initiated_at|date:"M d, Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                {% if order.payment.refund_status == 'Processing' %}
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-yellow-600 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Processing</h3>
+                        <p class="text-gray-400 text-sm">Your refund is being processed</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if order.payment.refund_status == 'Completed' %}
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Refund Completed</h3>
+                        <p class="text-gray-400 text-sm">{{ order.payment.refund_completed_at|date:"M d, Y H:i" }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center space-x-3 opacity-50">
+                    <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-400 font-semibold">Refund Completed</h3>
+                        <p class="text-gray-500 text-sm">Expected: {{ order.payment.refund_expected_date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if order.payment.refund_expected_date %}
+            <div class="mt-6 p-4 bg-blue-900 bg-opacity-30 border border-blue-600 rounded-lg">
+                <h3 class="text-blue-400 font-semibold mb-2">Expected Timeline</h3>
+                <p class="text-blue-200 text-sm">
+                    Your refund should be credited to your account by 
+                    <strong>{{ order.payment.refund_expected_date|date:"M d, Y" }}</strong>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Status Message -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-xl font-semibold gold-accent mb-6">Current Status</h2>
+        
+        {% if order.payment.refund_status == 'Completed' %}
+        <div class="p-4 bg-green-900 bg-opacity-30 border border-green-600 rounded-lg">
+            <h3 class="text-green-400 font-semibold mb-2">✅ Refund Completed</h3>
+            <p class="text-green-200">
+                Your refund of ₹{{ order.payment.refund_amount }} has been successfully processed and credited to your account.
+                {% if order.payment.refund_transaction_id %}
+                Transaction ID: {{ order.payment.refund_transaction_id }}
+                {% endif %}
+            </p>
+        </div>
+        {% elif order.payment.refund_status == 'Failed' %}
+        <div class="p-4 bg-red-900 bg-opacity-30 border border-red-600 rounded-lg">
+            <h3 class="text-red-400 font-semibold mb-2">❌ Refund Failed</h3>
+            <p class="text-red-200">
+                There was an issue processing your refund. Please contact our support team for assistance.
+            </p>
+        </div>
+        {% else %}
+        <div class="p-4 bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg">
+            <h3 class="text-yellow-400 font-semibold mb-2">⏳ Refund in Progress</h3>
+            <p class="text-yellow-200">
+                Your refund is currently being processed. You will receive the amount in your account within 4 business days.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Help Section -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-xl font-semibold gold-accent mb-6">Need Help?</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 bg-gray-800 rounded-lg">
+                <h3 class="text-white font-semibold mb-2">Contact Support</h3>
+                <p class="text-gray-400 text-sm mb-3">If you have any questions about your refund:</p>
+                <div class="text-gray-400 text-sm space-y-1">
+                    <p>📞 Phone: +91 6358286019</p>
+                    <p>📧 Email: info@ddsalon.com</p>
+                    <p>🕒 Support Hours: 9 AM - 6 PM (Mon-Sat)</p>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-gray-800 rounded-lg">
+                <h3 class="text-white font-semibold mb-2">Common Questions</h3>
+                <ul class="text-gray-400 text-sm space-y-1">
+                    <li>• Refunds are processed within 4 business days</li>
+                    <li>• You'll receive an email when refund is completed</li>
+                    <li>• Refund appears in your account within 24-48 hours</li>
+                    <li>• Contact us if refund doesn't appear after 5 days</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="text-center mt-8 space-x-4">
+        <a href="{% url 'orders_list' %}" class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Back to Orders
+        </a>
+        <a href="{% url 'home' %}" class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}

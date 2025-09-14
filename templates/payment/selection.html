@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold gold-accent mb-8">Choose Payment Method</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Payment Methods -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Select Payment Method</h2>
+            
+            <form method="POST" action="{% url 'process_payment' order.id %}" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Cash on Delivery -->
+                <div class="border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors cursor-pointer">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment_method" value="COD" class="w-5 h-5 text-yellow-500" checked>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">💰</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-semibold">Cash on Delivery</h3>
+                                    <p class="text-gray-400 text-sm">Pay when your order arrives</p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- UPI Payment -->
+                <div class="border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors cursor-pointer">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment_method" value="UPI" class="w-5 h-5 text-yellow-500">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">📱</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-semibold">UPI Payment</h3>
+                                    <p class="text-gray-400 text-sm">Pay using UPI apps like PhonePe, Google Pay</p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- Credit/Debit Card -->
+                <div class="border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors cursor-pointer">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment_method" value="CARD" class="w-5 h-5 text-yellow-500">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">💳</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-semibold">Credit/Debit Card</h3>
+                                    <p class="text-gray-400 text-sm">Pay using your credit or debit card</p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- Net Banking -->
+                <div class="border border-gray-600 rounded-lg p-4 hover:border-yellow-500 transition-colors cursor-pointer">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="payment_method" value="NETBANKING" class="w-5 h-5 text-yellow-500">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">🏦</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-semibold">Net Banking</h3>
+                                    <p class="text-gray-400 text-sm">Pay using your bank's net banking</p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full gold-gradient text-black py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity mt-6">
+                    Proceed to Payment
+                </button>
+            </form>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Order Summary</h2>
+            
+            <div class="space-y-4 mb-6">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Number:</span>
+                    <span class="text-white font-semibold">{{ order.order_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Date:</span>
+                    <span class="text-white">{{ order.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Items:</span>
+                    <span class="text-white">{{ order.items.count }} item(s)</span>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-400">Subtotal:</span>
+                    <span class="text-white">₹{{ order.total_amount }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-400">Shipping:</span>
+                    <span class="text-white">Free</span>
+                </div>
+                <div class="flex justify-between items-center text-xl font-bold">
+                    <span class="gold-accent">Total:</span>
+                    <span class="gold-accent">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-gray-800 rounded-lg">
+                <h3 class="text-white font-semibold mb-2">Delivery Address:</h3>
+                <p class="text-gray-400 text-sm">
+                    {{ order.shipping_name }}<br>
+                    {{ order.shipping_address }}<br>
+                    {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}<br>
+                    Phone: {{ order.shipping_phone }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

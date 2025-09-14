@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Cancelled - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center">
+        <!-- Cancelled Icon -->
+        <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-red-400 mb-4">Order Cancelled</h1>
+        <p class="text-xl text-gray-300 mb-8">Your order has been successfully cancelled.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Order Details -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Cancelled Order Details</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Number:</span>
+                    <span class="text-white font-semibold">{{ order.order_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Date:</span>
+                    <span class="text-white">{{ order.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Cancelled On:</span>
+                    <span class="text-white">{{ order.cancelled_at|date:"M d, Y H:i" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Status:</span>
+                    <span class="text-red-400 font-semibold">Cancelled</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Total Amount:</span>
+                    <span class="text-white font-semibold">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+            
+            {% if order.cancellation_reason %}
+            <div class="mt-6 p-4 bg-gray-800 rounded-lg">
+                <h3 class="text-white font-semibold mb-2">Cancellation Reason:</h3>
+                <p class="text-gray-400">{{ order.cancellation_reason }}</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Refund Information -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Payment Information</h2>
+            
+            {% if order.payment.payment_method == 'COD' %}
+                <div class="p-4 bg-blue-900 bg-opacity-30 border border-blue-600 rounded-lg">
+                    <h3 class="text-blue-400 font-semibold mb-2">💰 Cash on Delivery</h3>
+                    <p class="text-blue-200 text-sm mb-3">Since this was a Cash on Delivery order, no payment was made in advance.</p>
+                    <div class="text-blue-200 text-sm space-y-1">
+                        <p>• No refund required - you haven't paid anything yet</p>
+                        <p>• Order has been cancelled successfully</p>
+                        <p>• You can place a new order anytime</p>
+                    </div>
+                </div>
+            {% elif order.payment.payment_status == 'Success' %}
+                <div class="space-y-4">
+                    <div class="p-4 bg-green-900 bg-opacity-30 border border-green-600 rounded-lg">
+                        <h3 class="text-green-400 font-semibold mb-2">✅ Refund Initiated</h3>
+                        <p class="text-green-200 text-sm">Your refund has been automatically initiated.</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Refund Amount:</span>
+                            <span class="text-white font-semibold">₹{{ order.payment.refund_amount }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Refund Method:</span>
+                            <span class="text-white">{{ order.payment.get_payment_method_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Refund Status:</span>
+                            <span class="text-yellow-400 font-semibold">{{ order.payment.get_refund_status_display }}</span>
+                        </div>
+                        {% if order.payment.refund_expected_date %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Expected Refund:</span>
+                            <span class="text-green-400 font-semibold">{{ order.payment.refund_expected_date|date:"M d, Y" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="p-4 bg-blue-900 bg-opacity-30 border border-blue-600 rounded-lg">
+                        <h3 class="text-blue-400 font-semibold mb-2">📋 Refund Timeline</h3>
+                        <ul class="text-blue-200 text-sm space-y-1">
+                            <li>• Refund initiated: {{ order.payment.refund_initiated_at|date:"M d, Y" }}</li>
+                            <li>• Processing time: 1-2 business days</li>
+                            <li>• Credit to account: 3-4 business days</li>
+                            <li>• Total timeline: Up to 4 business days</li>
+                        </ul>
+                    </div>
+                </div>
+            {% else %}
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="text-white font-semibold mb-2">No Refund Required</h3>
+                    <p class="text-gray-400 text-sm">Since no payment was made for this order, no refund is required.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- What's Next -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-xl font-semibold gold-accent mb-6">What's Next?</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                <div class="w-12 h-12 gold-gradient rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <span class="text-2xl">📧</span>
+                </div>
+                <h3 class="text-white font-semibold mb-2">Email Confirmation</h3>
+                <p class="text-gray-400 text-sm">You'll receive a cancellation confirmation email shortly.</p>
+            </div>
+            
+            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                <div class="w-12 h-12 gold-gradient rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <span class="text-2xl">💰</span>
+                </div>
+                <h3 class="text-white font-semibold mb-2">Refund Tracking</h3>
+                <p class="text-gray-400 text-sm">Track your refund status in your order history.</p>
+            </div>
+            
+            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                <div class="w-12 h-12 gold-gradient rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <span class="text-2xl">🛍️</span>
+                </div>
+                <h3 class="text-white font-semibold mb-2">Continue Shopping</h3>
+                <p class="text-gray-400 text-sm">Browse our products and place a new order anytime.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="text-center mt-8 space-x-4">
+        {% if order.payment.payment_status == 'Success' and order.payment.payment_method != 'COD' %}
+        <a href="{% url 'refund_status' order.id %}" class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Track Refund Status
+        </a>
+        {% endif %}
+        <a href="{% url 'orders_list' %}" class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            View All Orders
+        </a>
+        <a href="{% url 'home' %}" class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}

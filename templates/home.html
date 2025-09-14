@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - D&D Salon Products{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="gradient-bg text-black py-20">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <h1 class="text-5xl font-bold mb-6">Welcome to D&D Salon Products</h1>
+        <p class="text-xl mb-8 opacity-90 font-semibold">Premium salon products for hair, skin, nails and men's grooming</p>
+        <a href="{% url 'products_list' %}" class="dark-bg text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-800 transition-colors border-2 border-transparent hover:gold-border">
+            Shop Now
+        </a>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-16 dark-nav">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 gold-accent">Shop by Category</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {% for category in categories %}
+            <a href="{% url 'products_list' %}?category={{ category.id }}" class="text-center group cursor-pointer block">
+                <div class="gold-gradient rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span class="text-2xl">
+                        {% if category.name == 'Hair Care' %}💇‍♀️
+                        {% elif category.name == 'Skin Care' %}✨
+                        {% elif category.name == 'Nail Care' %}💅
+                        {% elif category.name == "Men's Grooming" %}👨‍💼
+                        {% elif category.name == 'Body & Spa' %}🧖‍♀️
+                        {% else %}🛍️
+                        {% endif %}
+                    </span>
+                </div>
+                <h3 class="font-semibold text-gray-300 group-hover:gold-accent transition-colors">{{ category.name }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-16 dark-bg">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 gold-accent">Featured Products</h2>
+        
+        {% if featured_products %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <div class="dark-card rounded-lg shadow-lg overflow-hidden card-hover">
+                <div class="relative">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                            <span class="text-gray-400 text-4xl">🛍️</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.discount_percentage > 0 %}
+                        <div class="absolute top-2 right-2 gold-gradient text-black px-2 py-1 rounded text-sm font-bold">
+                            -{{ product.discount_percentage }}%
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-4">
+                    <h3 class="font-semibold text-white mb-2">{{ product.name }}</h3>
+                    <p class="text-gray-400 text-sm mb-3 line-clamp-2">{{ product.description|truncatewords:15 }}</p>
+                    
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-bold gold-accent">₹{{ product.final_price }}</span>
+                            {% if product.discount_price and product.price != product.discount_price %}
+                                <span class="text-sm text-gray-500 line-through">₹{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="text-sm text-gray-400">{{ product.category.name }}</span>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <a href="{% url 'product_detail' product.id %}" class="flex-1 bg-gray-700 text-gray-300 py-2 px-4 rounded text-center hover:bg-gray-600 transition-colors">
+                            View
+                        </a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'add_to_cart' product.id %}" class="flex-1 gold-gradient text-black py-2 px-4 rounded text-center hover:opacity-90 transition-opacity font-semibold">
+                                Add to Cart
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="flex-1 gold-gradient text-black py-2 px-4 rounded text-center hover:opacity-90 transition-opacity font-semibold">
+                                Login to Buy
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{% url 'products_list' %}" class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                View All Products
+            </a>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">🛍️</div>
+            <p class="text-gray-400">No featured products available at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-16 dark-nav">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="gold-gradient rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-2xl">🚚</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 gold-accent">Free Shipping</h3>
+                <p class="text-gray-400">Free delivery on orders above ₹999</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="gold-gradient rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-2xl">🔒</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 gold-accent">Secure Payment</h3>
+                <p class="text-gray-400">100% secure payment processing</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="gold-gradient rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-2xl">⭐</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 gold-accent">Quality Products</h3>
+                <p class="text-gray-400">Premium salon-grade products</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

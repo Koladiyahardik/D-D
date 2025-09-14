@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Success - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center">
+        <!-- Success Icon -->
+        <div class="w-24 h-24 gold-gradient rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        
+        <h1 class="text-4xl font-bold gold-accent mb-4">Payment Successful!</h1>
+        <p class="text-xl text-gray-300 mb-8">Thank you for your order. We'll process it shortly.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Order Details -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Order Details</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Number:</span>
+                    <span class="text-white font-semibold">{{ order.order_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Order Date:</span>
+                    <span class="text-white">{{ order.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Payment Status:</span>
+                    {% if order.payment.payment_method == 'COD' %}
+                        <span class="text-yellow-400 font-semibold">Cash on Delivery</span>
+                    {% else %}
+                        <span class="text-green-400 font-semibold">Paid</span>
+                    {% endif %}
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Payment Method:</span>
+                    <span class="text-white">{{ order.payment.get_payment_method_display }}</span>
+                </div>
+                {% if order.payment.transaction_id %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Transaction ID:</span>
+                    <span class="text-white font-mono text-sm">{{ order.payment.transaction_id }}</span>
+                </div>
+                {% endif %}
+                <div class="flex justify-between text-xl font-bold">
+                    <span class="gold-accent">Total Amount:</span>
+                    <span class="gold-accent">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Delivery Information -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Delivery Information</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-white font-semibold mb-2">Delivery Address:</h3>
+                    <p class="text-gray-400">
+                        {{ order.shipping_name }}<br>
+                        {{ order.shipping_address }}<br>
+                        {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}<br>
+                        Phone: {{ order.shipping_phone }}
+                    </p>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-800 rounded-lg">
+                    <h3 class="text-white font-semibold mb-2">What's Next?</h3>
+                    <ul class="text-gray-400 text-sm space-y-1">
+                        <li>• We'll send you a confirmation email shortly</li>
+                        <li>• Your order will be processed within 24 hours</li>
+                        <li>• You'll receive tracking information once shipped</li>
+                        <li>• Expected delivery: 3-5 business days</li>
+                        {% if order.payment.payment_method == 'COD' %}
+                        <li>• <strong class="text-yellow-400">Payment: Pay ₹{{ order.total_amount }} when your order arrives</strong></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Items -->
+    <div class="dark-card rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-xl font-semibold gold-accent mb-6">Order Items</h2>
+        
+        <div class="space-y-4">
+            {% for item in order.items.all %}
+            <div class="flex justify-between items-center py-3 border-b border-gray-700">
+                <div class="flex items-center space-x-3">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+                    {% else %}
+                        <div class="w-12 h-12 bg-gray-700 rounded flex items-center justify-center">
+                            <span class="text-gray-400 text-lg">🛍️</span>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="text-white font-medium">{{ item.product.name }}</h4>
+                        <p class="text-gray-400 text-sm">Qty: {{ item.quantity }}</p>
+                    </div>
+                </div>
+                <span class="text-white font-semibold">₹{{ item.total_price }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="text-center mt-8 space-x-4">
+        <a href="{% url 'orders_list' %}" class="gold-gradient text-black px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            View All Orders
+        </a>
+        <a href="{% url 'home' %}" class="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}

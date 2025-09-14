@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - D&D Salon Products{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold gold-accent mb-2">Admin Dashboard</h1>
+                <p class="text-gray-400">Welcome back! Here's what's happening with your salon products business.</p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="{% url 'home' %}" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    ← Back to Website
+                </a>
+                <a href="/admin/" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                    Django Admin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Orders -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Orders</p>
+                    <p class="text-3xl font-bold text-white">{{ total_orders }}</p>
+                </div>
+                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">📦</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Revenue</p>
+                    <p class="text-3xl font-bold text-white">₹{{ total_revenue|floatformat:0 }}</p>
+                </div>
+                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">💰</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Users -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Users</p>
+                    <p class="text-3xl font-bold text-white">{{ total_users }}</p>
+                </div>
+                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">👥</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Products -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Total Products</p>
+                    <p class="text-3xl font-bold text-white">{{ total_products }}</p>
+                </div>
+                <div class="w-12 h-12 gold-gradient rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">🛍️</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Recent Orders -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Orders (7 days)</p>
+                    <p class="text-3xl font-bold text-white">{{ recent_orders }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">📈</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">New Users (7 days)</p>
+                    <p class="text-3xl font-bold text-white">{{ recent_users }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">👤</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Users -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Active Users</p>
+                    <p class="text-3xl font-bold text-white">{{ active_users }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">✅</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Users -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Staff Members</p>
+                    <p class="text-3xl font-bold text-white">{{ staff_users }}</p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center">
+                    <span class="text-2xl">👨‍💼</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Order Status -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Order Status Overview</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Payment Pending</span>
+                    <span class="text-yellow-400 font-semibold">{{ pending_orders }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Confirmed</span>
+                    <span class="text-blue-400 font-semibold">{{ confirmed_orders }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Processing</span>
+                    <span class="text-purple-400 font-semibold">{{ processing_orders }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Shipped</span>
+                    <span class="text-indigo-400 font-semibold">{{ shipped_orders }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Delivered</span>
+                    <span class="text-green-400 font-semibold">{{ delivered_orders }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Cancelled</span>
+                    <span class="text-red-400 font-semibold">{{ cancelled_orders }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Overview -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Product Overview</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Active Products</span>
+                    <span class="text-green-400 font-semibold">{{ active_products }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Featured Products</span>
+                    <span class="text-yellow-400 font-semibold">{{ featured_products }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Low Stock (< 10)</span>
+                    <span class="text-red-400 font-semibold">{{ low_stock_products }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Total Categories</span>
+                    <span class="text-blue-400 font-semibold">{{ total_categories }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment & Revenue -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Payment Methods -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Payment Methods</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Cash on Delivery</span>
+                    <span class="text-blue-400 font-semibold">{{ cod_orders }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Online Payments</span>
+                    <span class="text-green-400 font-semibold">{{ online_payments }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Pending Refunds</span>
+                    <span class="text-yellow-400 font-semibold">{{ pending_refunds }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Revenue</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Total Revenue</span>
+                    <span class="text-green-400 font-semibold text-lg">₹{{ total_revenue|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Monthly Revenue</span>
+                    <span class="text-blue-400 font-semibold text-lg">₹{{ monthly_revenue|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders & Top Products -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Recent Orders -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold gold-accent">Recent Orders</h2>
+                <a href="{% url 'admin_orders' %}" class="text-blue-400 hover:text-blue-300 text-sm">View All</a>
+            </div>
+            <div class="space-y-3">
+                {% for order in recent_orders_list %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                    <div>
+                        <p class="text-white font-medium">{{ order.order_number }}</p>
+                        <p class="text-gray-400 text-sm">{{ order.user.username }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white font-semibold">₹{{ order.total_amount }}</p>
+                        <span class="px-2 py-1 rounded text-xs
+                            {% if order.status == 'Delivered' %}bg-green-600 text-white
+                            {% elif order.status == 'Shipped' %}bg-blue-600 text-white
+                            {% elif order.status == 'Processing' %}bg-yellow-600 text-white
+                            {% elif order.status == 'Confirmed' %}bg-purple-600 text-white
+                            {% elif order.status == 'Cancelled' %}bg-red-600 text-white
+                            {% else %}bg-gray-600 text-white{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Top Selling Products</h2>
+            <div class="space-y-3">
+                {% for product in top_products %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                    <div>
+                        <p class="text-white font-medium">{{ product.product__name }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white font-semibold">{{ product.total_sold }} sold</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Analytics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top Customers by Orders -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Top Customers (by Orders)</h2>
+            <div class="space-y-3">
+                {% for customer in top_customers %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                    <div>
+                        <p class="text-white font-medium">{{ customer.username }}</p>
+                        <p class="text-gray-400 text-sm">{{ customer.email }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white font-semibold">{{ customer.order_count }} orders</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-400 text-center py-4">No customer data available</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Top Customers by Spending -->
+        <div class="dark-card rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold gold-accent mb-6">Top Customers (by Spending)</h2>
+            <div class="space-y-3">
+                {% for customer in top_spenders %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                    <div>
+                        <p class="text-white font-medium">{{ customer.username }}</p>
+                        <p class="text-gray-400 text-sm">{{ customer.email }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white font-semibold">₹{{ customer.total_spent|floatformat:0 }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-400 text-center py-4">No spending data available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dark-card rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold gold-accent mb-6">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'admin_products' %}" class="gold-gradient text-black px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center">
+                Manage Products
+            </a>
+            <a href="{% url 'admin_orders' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
+                Manage Orders
+            </a>
+            <a href="{% url 'admin_payments' %}" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors text-center">
+                Manage Payments
+            </a>
+            <a href="/admin/" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors text-center">
+                Django Admin
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
