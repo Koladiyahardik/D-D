@@ -189,6 +189,22 @@
     </div>
 </div>
 
-{% load static %}
-<script src="{% static 'js/admin.js' %}"></script>
+<script>
+function updatePaymentStatus(paymentId) {
+    const form = document.getElementById('paymentForm');
+    form.action = `/admin/payments/${paymentId}/update-status/`;
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePaymentModal();
+    }
+});
+</script>
 {% endblock %}

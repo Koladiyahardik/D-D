@@ -9,8 +9,118 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Custom CSS -->
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #C29B4E 0%, #F0D890 50%, #8C6B2F 100%);
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #F0D890 0%, #C29B4E 50%, #8C6B2F 100%);
+        }
+        .dark-bg {
+            background-color: #1A1A1A;
+        }
+        .dark-nav {
+            background-color: #262626;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(194, 155, 78, 0.2);
+        }
+        .gold-text {
+            color: #C29B4E;
+        }
+        .gold-accent {
+            color: #F0D890;
+        }
+        .dark-card {
+            background-color: #262626;
+            border: 1px solid #333333;
+        }
+        .gold-border {
+            border-color: #C29B4E;
+        }
+        .user-avatar {
+            background: linear-gradient(135deg, #F0D890 0%, #C29B4E 50%, #8C6B2F 100%);
+            box-shadow: 0 4px 15px rgba(194, 155, 78, 0.3);
+        }
+        .dropdown-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #F0D890 0%, #C29B4E 100%);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link.active::after {
+            width: 100%;
+        }
+        .nav-link.active {
+            color: #F0D890;
+        }
+        .nav-link:hover {
+            transform: translateY(-1px);
+        }
+        .logo-hover:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        .breadcrumb-link:hover {
+            transform: translateX(2px);
+            transition: transform 0.2s ease;
+        }
+        .page-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #F0D890 0%, #C29B4E 50%, #8C6B2F 100%);
+            z-index: 9999;
+            animation: pageLoad 2s ease-in-out;
+        }
+        @keyframes pageLoad {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #F0D890 0%, #C29B4E 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(194, 155, 78, 0.3);
+        }
+        .scroll-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(194, 155, 78, 0.4);
+        }
+        .scroll-to-top.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body class="dark-bg text-white">
     <!-- Page Loading Indicator -->
@@ -318,7 +428,60 @@
     </div>
 
     <!-- JavaScript -->
-    <!-- Custom JavaScript -->
-    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // User dropdown menu toggle
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenu = document.getElementById('user-menu');
+        
+        if (userMenuBtn && userMenu) {
+            userMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userMenu.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+
+        // Scroll to top functionality
+        const scrollToTopBtn = document.getElementById('scroll-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.remove('hidden');
+            } else {
+                scrollToTopBtn.classList.add('hidden');
+            }
+        });
+        
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+
+        // Auto-hide messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 300);
+            });
+        }, 5000);
+    </script>
 </body>
 </html>
